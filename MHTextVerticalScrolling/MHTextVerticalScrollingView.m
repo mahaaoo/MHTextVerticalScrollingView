@@ -13,10 +13,11 @@
 @property (nonatomic,copy) NSArray *titleList;
 @property (nonatomic,retain) UILabel *showView;
 @property (nonatomic,retain) UILabel *nextView;
-@property (nonatomic,assign) CGRect starRect;
+@property (nonatomic,assign) CGRect startRect;
 @property (nonatomic,assign) CGRect showRect;
 @property (nonatomic,assign) CGRect endRect;
 @property (nonatomic,assign) CGFloat offset;
+@property (nonatomic,assign) NSInteger number;
 @end
 
 NSInteger count = 1;
@@ -32,6 +33,8 @@ NSInteger count = 1;
         self.vsFont = 20;
         self.vsColor = [UIColor blackColor];
         self.vsTextAlignment = NSTextAlignmentCenter;
+        self.number = 1;
+        
         if (contentArray == nil || contentArray.count == 0) {
             
         }else if (contentArray != nil && contentArray.count == 1) {
@@ -106,46 +109,57 @@ NSInteger count = 1;
     label.font = [UIFont systemFontOfSize:self.vsFont];
     return label;
 }
+- (void)changeArray {
+    NSMutableArray *muArray = [NSMutableArray array];
+    muArray = [self.titleList mutableCopy];
+    
+    NSString *string = self.titleList[0];
+    [muArray removeObjectAtIndex:0];
+    [muArray insertObject:string atIndex:self.titleList.count - 1];
+    
+    self.titleList = [muArray copy];
+}
+
 #pragma mark - VerticalScrollingModeDefault
 - (void)timerForVerticalScrollingModelDeatult {
     
     self.showView = [self creatLabelWithFrame:self.showRect];
     self.showView.text = self.titleList[0];
+    [self changeArray];
+    NSLog(@"%@",self.titleList[0]);
     [self addSubview:self.showView];
     
-    self.nextView = [self creatLabelWithFrame:self.starRect];
-    self.nextView.text = self.titleList[1];
+    self.nextView = [self creatLabelWithFrame:self.startRect];
+    self.nextView.text = self.titleList[0];
+    [self changeArray];
+    NSLog(@"%@",self.titleList[0]);
     [self addSubview:self.nextView];
     
-    NSTimer *defaultTimer = [NSTimer timerWithTimeInterval:2.5f target:self selector:@selector(startDefaultAnimation) userInfo:nil repeats:YES];
+    NSTimer *defaultTimer = [NSTimer timerWithTimeInterval:3.5f target:self selector:@selector(startDefaultAnimation) userInfo:nil repeats:YES];
     [[NSRunLoop currentRunLoop]addTimer:defaultTimer forMode:NSDefaultRunLoopMode];
 }
 - (void)startDefaultAnimation {
-    [UIView animateWithDuration:1.0f animations:^{
+    [UIView animateWithDuration:2.0f animations:^{
         self.showView.frame = self.endRect;
         self.nextView.frame = self.showRect;
     } completion:^(BOOL finished) {
-        self.showView.frame = self.starRect;
-        self.showView.text = self.titleList[count];
-        
+        self.showView.frame = self.startRect;
+        self.showView.text = self.titleList[0];
+        [self changeArray];
         UILabel *label = self.showView;
         self.showView = self.nextView;
         self.nextView = label;
     }];
-    count ++;
-    if (count >= self.titleList.count) {
-        count = 0;
-    }
 }
 #pragma mark - VerticalScrollingModeDefaultUP
 - (void)setRectVerticalScrollingModeDefaultUp {
-    self.starRect = CGRectMake(0, HEIGHT, WIDTH, HEIGHT);
+    self.startRect = CGRectMake(0, HEIGHT, WIDTH, HEIGHT);
     self.endRect = CGRectMake(0, - HEIGHT, WIDTH, HEIGHT);
 }
 #pragma mark - VerticalScrollingModeDefaultDown
 - (void)setRectVerticalScrollingModeDefaultDown {
     self.endRect = CGRectMake(0, HEIGHT, WIDTH, HEIGHT);
-    self.starRect = CGRectMake(0, - HEIGHT, WIDTH, HEIGHT);
+    self.startRect = CGRectMake(0, - HEIGHT, WIDTH, HEIGHT);
 }
 #pragma mark - VerticalScrollingModeCube
 - (void)timerForVerticalScrollingModelCube {
@@ -208,11 +222,13 @@ NSInteger count = 1;
 - (void)timerForVerticalScrollingModeAlpha {
     self.showView = [self creatLabelWithFrame:self.showRect];
     self.showView.text = self.titleList[0];
+    [self changeArray];
     self.showView.alpha = 1.0f;
     [self addSubview:self.showView];
     
     self.nextView = [self creatLabelWithFrame:self.showRect];
     self.nextView.text = self.titleList[1];
+    [self changeArray];
     self.nextView.alpha = 0.0f;
     [self addSubview:self.nextView];
     
@@ -229,7 +245,8 @@ NSInteger count = 1;
             [self.showView removeFromSuperview];
         }
         self.showView = [self creatLabelWithFrame:self.showRect];
-        self.showView.text = self.titleList[count];
+        self.showView.text = self.titleList[0];
+        [self changeArray];
         self.showView.alpha = 0.0f;
         [self addSubview:self.showView];
         
@@ -237,10 +254,6 @@ NSInteger count = 1;
         self.showView = self.nextView;
         self.nextView = lae;
     }];
-    count ++;
-    if (count >= self.titleList.count) {
-        count = 0;
-    }
 }
 /*
 // Only override drawRect: if you perform custom drawing.
